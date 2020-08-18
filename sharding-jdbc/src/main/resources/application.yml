@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+#控制台打印sql
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  shardingsphere:
+    default-data-source-name: test08181 # 配置默认库，不分库分片的表在此库中查询
+    datasource: #数据源 先创建2个数据库
+      names: test08181,test08182
+      test08181: # 配置test08181
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://10.0.1.120:3306/test08181?useUnicode=true&characterEncoding=UTF-8&&serverTimezone=CTT
+        username: teeechina
+        password: 123456
+      test08182: # 配置test08182
+        type: com.zaxxer.hikari.HikariDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        jdbc-url: jdbc:mysql://10.0.1.120:3306/test08182?useUnicode=true&characterEncoding=UTF-8&&serverTimezone=CTT
+        username: teeechina
+        password: 123456
+    sharding:
+      default-database-strategy:
+        standard:
+          sharding-column: createTime
+          precise-algorithm-class-name: com.example.shardingjdbc.config.PreciseModuloDatabaseShardingAlgorithm
+      tables:
+        tab_user:
+          actual-data-nodes: test0818$->{1..2}.tab_user$->{0..4}
+          table-strategy:
+            hint:
+              algorithm-class-name: com.example.shardingjdbc.config.HintTableShardingAlgorithm
+      default-table-strategy:
+        standard:
+          sharding-column: createTime
+          precise-algorithm-class-name: com.example.shardingjdbc.config.PreciseModuloTableShardingAlgorithm
+    props:
+      sql:
+        show: true
